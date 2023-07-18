@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>tablo sayfası</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+<br>
+<div class="container-fluid">
+    <div class="row">
+<div class="col-sm-4 col-sm-push-5">
+  <h2>Bilgileri Girin</h2>
+  <form class="" id="myForm">
+    <div class="form-group">
+      <label for="ad">Ad:</label>
+      <input type="text" class="form-control" id="ad" placeholder="Ad" required>
+    </div>
+    <div class="form-group">
+      <label for="soyad">Soyad:</label>
+      <input type="text" class="form-control" id="soyad" placeholder="Soyad" required>
+    </div>
+    <div class="form-group">
+      <label for="email">E-mail:</label>
+      <input type="email" class="form-control" id="email" placeholder="E-mail" required>
+    </div>
+    <div class="form-group">
+      <label for="dogumTarihi">Doğum Tarihi:</label>
+      <input type="date" class="form-control" id="dogumTarihi" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Gönder</button>
+  </form>
+</div>
+
+<div class="col-sm-8 col-sm-push-10">
+  <br>
+  <div class="form-group">
+    <label for="arama">Ara:</label>
+    <input type="text" class="form-control" id="arama" placeholder="arama" oninput="aramayiYap()">
+  </div>
+
+
+  <br>
+  <button type="button" class="btn btn-warning" onclick="sirala('id')">ID</button>
+  <button type="button" class="btn btn-warning" onclick="sirala('ad')">Ad (A-Z)</button>
+  <button type="button" class="btn btn-warning" onclick="sirala('soyad')">Soyad (A-Z)</button>
+  <button type="button" class="btn btn-warning" onclick="sirala('email')">Email (A-Z)</button>
+
+  <h2 class="mt-5">Kişi Listesi</h2>
+
+  <table id="tablo" class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Ad</th>
+        <th>Soyad</th>
+        <th>E-mail</th>
+        <th>Doğum Tarihi</th>
+        <th>İşlemler</th>
+      </tr>
+    </thead>
+        <tbody>
+
+      <!-- Tablo içeriği burada oluşturulacak -->
+    </tbody>
+  </table>
+
+    
+        </div>
+    </div>
+</div>
+
+
+<!-- Düzenleme formu -->
+<div id="duzenlemeFormu" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Kişi Bilgilerini Düzenle</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="duzenleForm">
+          <div class="form-group">
+            <label for="duzenleAd">Ad:</label>
+            <input type="text" class="form-control" id="duzenleAd" required>
+          </div>
+          <div class="form-group">
+            <label for="duzenleSoyad">Soyad:</label>
+            <input type="text" class="form-control" id="duzenleSoyad" required>
+          </div>
+          <div class="form-group">
+            <label for="duzenleEmail">E-mail:</label>
+            <input type="email" class="form-control" id="duzenleEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="duzenleDogumTarihi">Doğum Tarihi:</label>
+            <input type="date" class="form-control" id="duzenleDogumTarihi" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="kisiyiDuzenle()">Kaydet</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Silme Onay Penceresi -->
+<div id="silmeOnayPenceresi" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Silme Onayı</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Veriyi silmek istediğinize emin misiniz?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" onclick="kaydiSil()">Evet</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hayır</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+// Yeni sıralama butonlarının tıklanma durumunu tutmak için değişken
+var siralamaDurumu = {
+    id: 0,
+    ad: 0,
+    soyad: 0,
+    email: 0
+  };
+
+  // Sıralama fonksiyonu
+  function sirala(sutun) {
+    kaydedilenBilgiler.sort(function(a, b) {
+      var durum = siralamaDurumu[sutun];
+
+      if (sutun === 'id') {
+        if (durum === 0) {
+          return a[sutun] - b[sutun];
+        } else {
+          return b[sutun] - a[sutun];
+        }
+      } else {
+        if (durum === 0) {
+          return a[sutun].localeCompare(b[sutun]);
+        } else {
+          return b[sutun].localeCompare(a[sutun]);
+        }
+      }
+    });
+
+    siralamaDurumu[sutun] = (siralamaDurumu[sutun] === 0) ? 1 : 0;
+    guncelleTablo();
+  }
+  
+
+
+  // Kaydedilen bilgileri tutmak için bir dizi tanımla
+  var kaydedilenBilgiler = [];
+  var seciliKisiIndex; // Seçili kişinin indeksini tutmak için değişken
+
+  // Kaydedilen bilgileri local storage'dan yükle
+  if (localStorage.getItem('kaydedilenBilgiler')) {
+    kaydedilenBilgiler = JSON.parse(localStorage.getItem('kaydedilenBilgiler'));
+    guncelleTablo();
+  }
+
+  // Form gönderildiğinde tetiklenen olay dinleyicisi
+  document.getElementById('myForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Formdan verileri al
+    var ad = document.getElementById('ad').value;
+    var soyad = document.getElementById('soyad').value;
+    var email = document.getElementById('email').value;
+    var dogumTarihi = document.getElementById('dogumTarihi').value;
+
+    // Yeni bir kişi nesnesi oluştur
+    var yeniKisi = {
+      id: generateID(), // Benzersiz 5-10 haneli ID oluştur
+      ad: ad,
+      soyad: soyad,
+      email: email,
+      dogumTarihi: dogumTarihi
+    };
+    
+    // Yeni kişiyi kaydet ve tabloyu güncelle
+    kaydedilenBilgiler.push(yeniKisi);
+    guncelleTablo();
+
+    // Local storage'a kaydet
+    localStorage.setItem('kaydedilenBilgiler', JSON.stringify(kaydedilenBilgiler));
+
+    // Formu sıfırla
+    document.getElementById('myForm').reset();
+  });
+
+  // Tabloyu güncelleme fonksiyonu
+  function guncelleTablo() {
+    var tabloBody = document.getElementById('tablo').getElementsByTagName('tbody')[0];
+    tabloBody.innerHTML = '';
+    // Arama kelimesini küçük harfe dönüştürerek al
+    var aramaKelimesi = document.getElementById('arama').value.toLowerCase(); 
+    for (var i = 0; i < kaydedilenBilgiler.length; i++) {
+      var kisi = kaydedilenBilgiler[i];
+
+      // Kişi adı, soyadı, e-posta adresi veya ID üzerinde arama yap
+      if (kisi.ad.toLowerCase().includes(aramaKelimesi) ||
+          kisi.soyad.toLowerCase().includes(aramaKelimesi) ||
+          kisi.email.toLowerCase().includes(aramaKelimesi) ||
+          kisi.id.toString().includes(aramaKelimesi)){
+
+        var row = tabloBody.insertRow();
+        var idCell = row.insertCell(0);
+        var adCell = row.insertCell(1);
+        var soyadCell = row.insertCell(2);
+        var emailCell = row.insertCell(3);
+        var dogumTarihiCell = row.insertCell(4);
+        var islemlerCell = row.insertCell(5);
+
+        idCell.innerHTML = kisi.id;
+        adCell.innerHTML = kisi.ad;
+        soyadCell.innerHTML = kisi.soyad;
+        emailCell.innerHTML = kisi.email;
+        dogumTarihiCell.innerHTML = kisi.dogumTarihi;
+        islemlerCell.innerHTML = '<button class="btn btn-sm btn-danger" onclick="silmeOnayPenceresiniAc(' + i + ')">Sil</button> ' +
+                                  '<button class="btn btn-sm btn-primary" onclick="kisiyiDuzenlemeFormunuAc(' + i + ')">Düzenle</button>';
+      }
+    }
+  }
+
+  // Kişiye özel 5-10 haneli bir ID oluşturan fonksiyon
+  function generateID() {
+    var id = '';
+    var characters = '0123456789';
+    var charactersLength = characters.length;
+
+    var idLength = Math.floor(Math.random() * 6) + 5; // 5-10 arası rastgele uzunluk belirle
+
+    for (var i = 0; i < idLength; i++) {
+      id += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return parseInt(id);
+  }
+
+  // Kişiyi silme işlemini başlatan fonksiyon
+  function silmeOnayPenceresiniAc(index) {
+    seciliKisiIndex = index;
+    $('#silmeOnayPenceresi').modal('show');
+  }
+
+  // Kaydı silme fonksiyonu
+  function kaydiSil() {
+    kaydedilenBilgiler.splice(seciliKisiIndex, 1);
+    guncelleTablo();
+    localStorage.setItem('kaydedilenBilgiler', JSON.stringify(kaydedilenBilgiler));
+    $('#silmeOnayPenceresi').modal('hide');
+  }
+
+  // Kişiyi düzenleme işlemini başlatan fonksiyon
+  function kisiyiDuzenlemeFormunuAc(index) {
+    var kisi = kaydedilenBilgiler[index];
+
+    // Formu doldur
+    document.getElementById('duzenleAd').value = kisi.ad;
+    document.getElementById('duzenleSoyad').value = kisi.soyad;
+    document.getElementById('duzenleEmail').value = kisi.email;
+    document.getElementById('duzenleDogumTarihi').value = kisi.dogumTarihi;
+
+    // Düzenleme formunu aç
+    $('#duzenlemeFormu').modal('show');
+
+    // Düzenleme yapılacak kişinin indeksini güncelle
+    seciliKisiIndex = index;
+  }
+
+  // Kişiyi düzenleme işlemini gerçekleştiren fonksiyon
+  function kisiyiDuzenle() {
+    var kisi = kaydedilenBilgiler[seciliKisiIndex];
+
+    // Yeni değerleri al
+    var yeniAd = document.getElementById('duzenleAd').value;
+    var yeniSoyad = document.getElementById('duzenleSoyad').value;
+    var yeniEmail = document.getElementById('duzenleEmail').value;
+    var yeniDogumTarihi = document.getElementById('duzenleDogumTarihi').value;
+
+    // Değerleri güncelle
+    kisi.ad = yeniAd;
+    kisi.soyad = yeniSoyad;
+    kisi.email = yeniEmail;
+    kisi.dogumTarihi = yeniDogumTarihi;
+
+    // Tabloyu güncelle
+    guncelleTablo();
+
+    // Local storage'a kaydet
+    localStorage.setItem('kaydedilenBilgiler', JSON.stringify(kaydedilenBilgiler));
+
+    // Düzenleme formunu kapat
+    $('#duzenlemeFormu').modal('hide');
+  }
+
+  function aramayiYap() {
+    guncelleTablo();
+  }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>
